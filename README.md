@@ -37,8 +37,8 @@ Desde la carpeta del proyecto:
 - `vagrant up`
 
 ### 2.2 Acceder por SSH
-- `vagrant ssh vm1-maestro`
-- `vagrant ssh vm2-esclavo`
+- `vagrant ssh maestro`
+- `vagrant ssh esclavo`
 
 ---
 
@@ -196,13 +196,13 @@ Y archivos de prueba:
 
 El objetivo es disponer de HTML/CSS/JS para comprobar compresión gzip.
 
-### 7.3 VirtualHost para `parcial.su-nombre.com`
+### 7.3 VirtualHost para `parcial.david.com`
 Se creó un sitio en:
 
 - `/etc/apache2/sites-available/parcial.conf`
 
 Configuración principal:
-- `ServerName parcial.su-nombre.com`
+- `ServerName parcial.david.com`
 - `DocumentRoot /var/www/parcial`
 
 Se habilitó y recargó Apache:
@@ -231,7 +231,6 @@ Se creó un archivo de configuración adicional:
 Reglas aplicadas:
 - **Comprimir**: `text/html`, `text/css`, `application/javascript`, `application/json`, `application/xml`, `image/svg+xml`, etc.
 - Agregar cabecera: `Vary: Accept-Encoding`
-- **Excluir** (no comprimir): imágenes y multimedia ya comprimidas (`.png`, `.jpg`, `.gif`, `.mp4`, `.mp3`, `.pdf`, `.zip`, etc.) usando `SetEnvIfNoCase ... no-gzip`.
 
 Habilitación:
 - `sudo a2enconf parcial-deflate.conf`
@@ -240,25 +239,25 @@ Habilitación:
 
 ---
 
-## 9. DNS para `parcial.su-nombre.com`
+## 9. DNS para `parcial.david.com`
 
-Para que el servidor responda correctamente al nombre (sin usar /etc/hosts), se creó una **zona DNS**:
+Para que el servidor responda correctamente al nombre (david) (sin usar /etc/hosts), se creó una **zona DNS**:
 
-- `su-nombre.com`
+- `david.com`
 
 En el maestro (VM1):
 - `/etc/bind/named.conf.local` se agregó la zona con `allow-transfer` al esclavo y `notify` al esclavo.
-- Se creó el archivo: `/etc/bind/db.su-nombre.com` con:
+- Se creó el archivo: `/etc/bind/db.david.com` con:
 
 Registro:
 - `parcial` → `192.168.56.10` (VM1)
 
 Se validó y recargó BIND:
-- `sudo named-checkzone su-nombre.com /etc/bind/db.su-nombre.com`
+- `sudo named-checkzone david.com /etc/bind/db.david.com`
 - `sudo rndc reload`
 
 En el esclavo (VM2):
-- Se agregó la zona `su-nombre.com` como `type slave` para que la transfiera desde el maestro.
+- Se agregó la zona `david.com` como `type slave` para que la transfiera desde el maestro.
 - `sudo systemctl restart bind9`
 - Se verificó que exista el archivo en `/var/lib/bind/`.
 
@@ -269,7 +268,7 @@ En el esclavo (VM2):
 ### 10.1 Verificar DNS (desde VM2 usando el esclavo)
 En VM2:
 
-- `dig @192.168.56.11 parcial.su-nombre.com A`
+- `dig @192.168.56.11 parcial.david.com A`
 
 Debe devolver:
 - `192.168.56.10`
@@ -277,16 +276,16 @@ Debe devolver:
 ### 10.2 Verificar acceso HTTP al sitio
 En VM2:
 
-- `curl -I http://parcial.su-nombre.com/`
+- `curl -I http://parcial.david.com/`
 
 Debe responder con estado `200 OK` (o similar) desde Apache en VM1.
 
 ### 10.3 Verificar compresión gzip con curl
 **Sin pedir gzip**:
-- `curl -I http://parcial.su-nombre.com/`
+- `curl -I http://parcial.david.com/`
 
 **Pidiendo gzip**:
-- `curl -I -H "Accept-Encoding: gzip" http://parcial.su-nombre.com/`
+- `curl -I -H "Accept-Encoding: gzip" http://parcial.david.com/`
 
 Resultado esperado cuando gzip se aplica:
 - Aparece: `Content-Encoding: gzip`
@@ -295,8 +294,8 @@ Resultado esperado cuando gzip se aplica:
 ### 10.4 Comparación “comprimido vs no comprimido”
 En VM2 se midió el tamaño descargado:
 
-- `curl -s -o /dev/null -w "size_download=%{size_download}\n" http://parcial.su-nombre.com/`
-- `curl -s -H "Accept-Encoding: gzip" -o /dev/null -w "size_download=%{size_download}\n" http://parcial.su-nombre.com/`
+- `curl -s -o /dev/null -w "size_download=%{size_download}\n" http://parcial.david.com/`
+- `curl -s -H "Accept-Encoding: gzip" -o /dev/null -w "size_download=%{size_download}\n" http://parcial.david.com/`
 
 Con esto se puede calcular el ahorro aproximado:
 - `Ahorro% = (1 - size_gzip/size_no_gzip) * 100`
@@ -310,7 +309,7 @@ Con esto se puede calcular el ahorro aproximado:
   - `/etc/bind/named.conf.local`
   - `/etc/bind/db.empresa.local`
   - `/etc/bind/db.192.168.56`
-  - `/etc/bind/db.su-nombre.com`
+  - `/etc/bind/db.david.com`
 - Config DNS Esclavo VM2:
   - `/etc/bind/named.conf.options`
   - `/etc/bind/named.conf.local`
