@@ -1,0 +1,14 @@
+$TTL 86400
+@   IN  SOA maestro.empresa.local. admin.empresa.local. (
+        2026030101 ; Serial
+        3600
+        1800
+        604800
+        86400 )
+
+@       IN  NS  maestro.empresa.local.
+@       IN  NS  esclavo.empresa.local.
+
+; PTR: último octeto -> nombre
+10      IN  PTR maestro.empresa.local.
+11      IN  PTR esclavo.empresa.local.

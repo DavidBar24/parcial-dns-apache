@@ -1,0 +1,24 @@
+$TTL 86400
+@   IN  SOA maestro.empresa.local. admin.empresa.local. (
+        2026030101 ; Serial (YYYYMMDDNN) - IMPORTANTÍSIMO incrementarlo al cambiar
+        3600       ; Refresh
+        1800       ; Retry
+        604800     ; Expire
+        86400 )    ; Minimum
+
+; Servidores DNS (NS)
+@       IN  NS  maestro.empresa.local.
+@       IN  NS  esclavo.empresa.local.
+
+; Registros A (IPv4)
+maestro IN  A   192.168.56.10
+esclavo IN  A   192.168.56.11
+www     IN  A   192.168.56.10
+app     IN  A   192.168.56.20
+
+; Registros AAAA (IPv6) - ejemplo de documentación (si no usas IPv6 real, igual sirve para practicar)
+maestro IN  AAAA 2001:db8:56::10
+esclavo IN  AAAA 2001:db8:56::11
+
+; CNAME (alias)
+dns     IN  CNAME maestro

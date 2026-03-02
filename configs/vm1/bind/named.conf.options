@@ -1,0 +1,20 @@
+options {
+    directory "/var/cache/bind";
+
+    // Escuchar en todas las interfaces IPv4 de la VM
+    listen-on { any; };
+    listen-on-v6 { any; };
+
+    // IMPORTANTE: evitar open resolver
+    recursion no;
+    allow-recursion { none; };
+
+    // Solo responder consultas desde la red interna (ajusta si quieres)
+    allow-query { localhost; 192.168.56.0/24; };
+
+    // Opcional: limitar cache si no haces recursión
+    // max-cache-size 0;
+
+    dnssec-validation auto;
+    auth-nxdomain no;
+};
